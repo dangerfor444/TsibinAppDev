@@ -1,0 +1,10 @@
+{
+  "name": "tsibin-appdev",
+  "version": "1.0.0",
+  "description": "Practical homework project for agentic development course",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "license": "MIT"
+}
