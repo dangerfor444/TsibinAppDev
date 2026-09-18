@@ -1,9 +1,25 @@
-console.log("Hello, World!");
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function isValidEmail(email) {
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailPattern.test(email);
+    return EMAIL_PATTERN.test(email);
 }
 
-console.log(isValidEmail("test@example.com"));
-console.log(isValidEmail("not-an-email"));
+function printAppGreeting() {
+    console.log("Hello, World!");
+}
+
+function printEmailValidationResults() {
+    const samples = [
+        { value: "test@example.com", expected: true },
+        { value: "not-an-email", expected: false },
+    ];
+
+    samples.forEach(({ value, expected }) => {
+        const received = isValidEmail(value);
+        console.log(`Email "${value}" is valid: ${received}`);
+        console.log(received === expected ? "PASS" : "FAIL");
+    });
+}
+
+printAppGreeting();
+printEmailValidationResults();
