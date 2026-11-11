@@ -1,0 +1,514 @@
+openapi: 3.0.3
+info:
+  description: API для управления привычками текущего пользователя. Доступ требует
+    Bearer-токена. Пользователь может просматривать и изменять только свои привычки.
+    Успешные операции возвращают 200.
+  title: Habit Tracker API
+  version: 1.0.0
+servers:
+- url: http://localhost:8080
+security:
+- bearerAuth: []
+tags:
+- description: Управление привычками
+  name: Habits
+paths:
+  /habits:
+    get:
+      operationId: listHabits
+      parameters:
+      - description: Максимальное число привычек в ответе
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 20
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      - description: Число пропускаемых привычек; порядок — по id по возрастанию
+        explode: true
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HabitListDto"
+          description: Список привычек; при отсутствии привычек items пуст
+        "400":
+          content:
+            application/json:
+              example:
+                code: BAD_REQUEST
+                message: targetCount должен быть целым числом от 1 до 100
+              schema:
+                $ref: "#/components/schemas/ErrorDto"
+          description: "Некорректный UUID, параметры пагинации или тело запроса"
+        "401":
+          content:
+            application/json:
+              example:
+                code: UNAUTHORIZED
+                message: Требуется действующий Bearer-токен
+              schema:
+                $ref: "#/components/schemas/ErrorDto"
+          description: "Токен отсутствует, недействителен или истёк; личность поль\
+            зователя не установлена"
+      summary: Получить список своих привычек
+      tags:
+      - Habits
+      x-accepts:
+      - application/json
+      x-tags:
+      - tag: Habits
+    post:
+      description: "Владелец определяется по токену, идентификатор назначает серве\
+        р."
+      operationId: createHabit
+      requestBody:
+        $ref: "#/components/requestBodies/HabitBody"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HabitDto"
+          description: Привычка создана
+        "400":
+          content:
+            application/json:
+              example:
+                code: BAD_REQUEST
+                message: targetCount должен быть целым числом от 1 до 100
+              schema:
+                $ref: "#/components/schemas/ErrorDto"
+          description: "Некорректный UUID, параметры пагинации или тело запроса"
+        "401":
+          content:
+            application/json:
+              example:
+                code: UNAUTHORIZED
+                message: Требуется действующий Bearer-токен
+              schema:
+                $ref: "#/components/schemas/ErrorDto"
+          description: "Токен отсутствует, недействителен или истёк; личность поль\
+            зователя не установлена"
+      summary: Создать привычку
+      tags:
+      - Habits
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+      x-tags:
+      - tag: Habits
+  /habits/{habitId}:
+    delete:
+      operationId: deleteHabit
+      parameters:
+      - description: Идентификатор привычки в формате UUID
+        example: 16c98ff1-63c6-40f2-a4b9-5918f624613b
+        explode: false
+        in: path
+        name: habitId
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteHabitDto"
+          description: Привычка удалена; повторное удаление возвращает 404
+        "400":
+          content:
+            application/json:
+              example:
+                code: BAD_REQUEST
+                message: targetCount должен быть целым числом от 1 до 100
+              schema:
+                $ref: "#/components/schemas/ErrorDto"
+          description: "Некорректный UUID, параметры пагинации или тело запроса"
+        "401":
+          content:
+            application/json:
+              example:
+                code: UNAUTHORIZED
+                message: Требуется действующий Bearer-токен
+              schema:
+                $ref: "#/components/schemas/ErrorDto"
+          description: "Токен отсутствует, недействителен или истёк; личность поль\
+            зователя не установлена"
+        "403":
+          content:
+            application/json:
+              example:
+                code: FORBIDDEN
+                message: Нет доступа к чужой привычке
+              schema:
+                $ref: "#/components/schemas/ErrorDto"
+          description: "Пользователь определён по токену, но привычка принадлежит\
+            \ другому пользователю"
+        "404":
+          content:
+            application/json:
+              example:
+                code: NOT_FOUND
+                message: Привычка не найдена
+              schema:
+                $ref: "#/components/schemas/ErrorDto"
+          description: Привычка с указанным идентификатором не существует
+      summary: Удалить привычку
+      tags:
+      - Habits
+      x-accepts:
+      - application/json
+      x-tags:
+      - tag: Habits
+    get:
+      operationId: getHabit
+      parameters:
+      - description: Идентификатор привычки в формате UUID
+        example: 16c98ff1-63c6-40f2-a4b9-5918f624613b
+        explode: false
+        in: path
+        name: habitId
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HabitDto"
+          description: Привычка найдена
+        "400":
+          content:
+            application/json:
+              example:
+                code: BAD_REQUEST
+                message: targetCount должен быть целым числом от 1 до 100
+              schema:
+                $ref: "#/components/schemas/ErrorDto"
+          description: "Некорректный UUID, параметры пагинации или тело запроса"
+        "401":
+          content:
+            application/json:
+              example:
+                code: UNAUTHORIZED
+                message: Требуется действующий Bearer-токен
+              schema:
+                $ref: "#/components/schemas/ErrorDto"
+          description: "Токен отсутствует, недействителен или истёк; личность поль\
+            зователя не установлена"
+        "403":
+          content:
+            application/json:
+              example:
+                code: FORBIDDEN
+                message: Нет доступа к чужой привычке
+              schema:
+                $ref: "#/components/schemas/ErrorDto"
+          description: "Пользователь определён по токену, но привычка принадлежит\
+            \ другому пользователю"
+        "404":
+          content:
+            application/json:
+              example:
+                code: NOT_FOUND
+                message: Привычка не найдена
+              schema:
+                $ref: "#/components/schemas/ErrorDto"
+          description: Привычка с указанным идентификатором не существует
+      summary: Получить привычку по идентификатору
+      tags:
+      - Habits
+      x-accepts:
+      - application/json
+      x-tags:
+      - tag: Habits
+    put:
+      description: Заменяет все редактируемые поля существующей привычки. Идентификатор
+        и владелец сохраняются; новая привычка этим методом не создаётся.
+      operationId: replaceHabit
+      parameters:
+      - description: Идентификатор привычки в формате UUID
+        example: 16c98ff1-63c6-40f2-a4b9-5918f624613b
+        explode: false
+        in: path
+        name: habitId
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      requestBody:
+        $ref: "#/components/requestBodies/HabitBody"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HabitDto"
+          description: Настройки привычки заменены
+        "400":
+          content:
+            application/json:
+              example:
+                code: BAD_REQUEST
+                message: targetCount должен быть целым числом от 1 до 100
+              schema:
+                $ref: "#/components/schemas/ErrorDto"
+          description: "Некорректный UUID, параметры пагинации или тело запроса"
+        "401":
+          content:
+            application/json:
+              example:
+                code: UNAUTHORIZED
+                message: Требуется действующий Bearer-токен
+              schema:
+                $ref: "#/components/schemas/ErrorDto"
+          description: "Токен отсутствует, недействителен или истёк; личность поль\
+            зователя не установлена"
+        "403":
+          content:
+            application/json:
+              example:
+                code: FORBIDDEN
+                message: Нет доступа к чужой привычке
+              schema:
+                $ref: "#/components/schemas/ErrorDto"
+          description: "Пользователь определён по токену, но привычка принадлежит\
+            \ другому пользователю"
+        "404":
+          content:
+            application/json:
+              example:
+                code: NOT_FOUND
+                message: Привычка не найдена
+              schema:
+                $ref: "#/components/schemas/ErrorDto"
+          description: Привычка с указанным идентификатором не существует
+      summary: Полностью заменить настройки привычки
+      tags:
+      - Habits
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+      x-tags:
+      - tag: Habits
+components:
+  parameters:
+    HabitId:
+      description: Идентификатор привычки в формате UUID
+      example: 16c98ff1-63c6-40f2-a4b9-5918f624613b
+      explode: false
+      in: path
+      name: habitId
+      required: true
+      schema:
+        format: uuid
+        type: string
+      style: simple
+  requestBodies:
+    HabitBody:
+      content:
+        application/json:
+          example:
+            title: Читать 20 минут
+            frequency: DAILY
+            targetCount: 1
+          schema:
+            $ref: "#/components/schemas/HabitWriteDto"
+      description: Все редактируемые параметры привычки
+      required: true
+  responses:
+    BadRequest:
+      content:
+        application/json:
+          example:
+            code: BAD_REQUEST
+            message: targetCount должен быть целым числом от 1 до 100
+          schema:
+            $ref: "#/components/schemas/ErrorDto"
+      description: "Некорректный UUID, параметры пагинации или тело запроса"
+    Unauthorized:
+      content:
+        application/json:
+          example:
+            code: UNAUTHORIZED
+            message: Требуется действующий Bearer-токен
+          schema:
+            $ref: "#/components/schemas/ErrorDto"
+      description: "Токен отсутствует, недействителен или истёк; личность пользова\
+        теля не установлена"
+    Forbidden:
+      content:
+        application/json:
+          example:
+            code: FORBIDDEN
+            message: Нет доступа к чужой привычке
+          schema:
+            $ref: "#/components/schemas/ErrorDto"
+      description: "Пользователь определён по токену, но привычка принадлежит друг\
+        ому пользователю"
+    NotFound:
+      content:
+        application/json:
+          example:
+            code: NOT_FOUND
+            message: Привычка не найдена
+          schema:
+            $ref: "#/components/schemas/ErrorDto"
+      description: Привычка с указанным идентификатором не существует
+  schemas:
+    HabitWriteDto:
+      additionalProperties: false
+      example:
+        title: Читать 20 минут
+        frequency: DAILY
+        targetCount: 1
+      properties:
+        title:
+          description: "Название, содержащее хотя бы один непробельный символ"
+          example: Читать 20 минут
+          maxLength: 120
+          minLength: 1
+          pattern: "^[\\s\\S]*\\S[\\s\\S]*$"
+          type: string
+        frequency:
+          description: Период выполнения — день или неделя
+          enum:
+          - DAILY
+          - WEEKLY
+          example: DAILY
+          type: string
+        targetCount:
+          description: Плановое число выполнений за выбранный период
+          example: 1
+          maximum: 100
+          minimum: 1
+          type: integer
+      required:
+      - frequency
+      - targetCount
+      - title
+      type: object
+    HabitDto:
+      additionalProperties: false
+      example:
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        title: title
+        frequency: DAILY
+        targetCount: 8
+      properties:
+        id:
+          description: Публичный идентификатор привычки
+          format: uuid
+          readOnly: true
+          type: string
+        title:
+          maxLength: 120
+          minLength: 1
+          pattern: "^[\\s\\S]*\\S[\\s\\S]*$"
+          type: string
+        frequency:
+          enum:
+          - DAILY
+          - WEEKLY
+          type: string
+        targetCount:
+          maximum: 100
+          minimum: 1
+          type: integer
+      required:
+      - frequency
+      - id
+      - targetCount
+      - title
+      type: object
+    HabitListDto:
+      additionalProperties: false
+      example:
+        items:
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          title: title
+          frequency: DAILY
+          targetCount: 8
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          title: title
+          frequency: DAILY
+          targetCount: 8
+        total: 0
+      properties:
+        items:
+          items:
+            $ref: "#/components/schemas/HabitDto"
+          type: array
+        total:
+          description: Общее число привычек текущего пользователя до пагинации
+          minimum: 0
+          type: integer
+      required:
+      - items
+      - total
+      type: object
+    DeleteHabitDto:
+      additionalProperties: false
+      example:
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        deleted: true
+      properties:
+        id:
+          description: Идентификатор удалённой привычки
+          format: uuid
+          type: string
+        deleted:
+          example: true
+          type: boolean
+      required:
+      - deleted
+      - id
+      type: object
+    ErrorDto:
+      additionalProperties: false
+      example:
+        code: BAD_REQUEST
+        message: message
+      properties:
+        code:
+          enum:
+          - BAD_REQUEST
+          - UNAUTHORIZED
+          - FORBIDDEN
+          - NOT_FOUND
+          type: string
+        message:
+          description: Понятная причина ошибки без внутренних данных и трассировки
+            стека
+          type: string
+      required:
+      - code
+      - message
+      type: object
+  securitySchemes:
+    bearerAuth:
+      bearerFormat: JWT
+      description: Токен текущего пользователя передаётся в Authorization
+      scheme: bearer
+      type: http

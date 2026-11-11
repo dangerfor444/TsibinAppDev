@@ -1,0 +1,159 @@
+package ru.practice.habits.dto;
+
+import java.net.URI;
+import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import org.springframework.lang.Nullable;
+import org.openapitools.jackson.nullable.JsonNullable;
+import java.time.OffsetDateTime;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
+import io.swagger.v3.oas.annotations.media.Schema;
+
+
+import java.util.*;
+import jakarta.annotation.Generated;
+
+/**
+ * ErrorDto
+ */
+
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", comments = "Generator version: 7.26.0")
+public class ErrorDto {
+
+  /**
+   * Gets or Sets code
+   */
+  public enum CodeEnum {
+    BAD_REQUEST("BAD_REQUEST"),
+    
+    UNAUTHORIZED("UNAUTHORIZED"),
+    
+    FORBIDDEN("FORBIDDEN"),
+    
+    NOT_FOUND("NOT_FOUND");
+
+    private final String value;
+
+    CodeEnum(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static CodeEnum fromValue(String value) {
+      for (CodeEnum b : CodeEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+  }
+
+  private CodeEnum code;
+
+  private String message;
+
+  public ErrorDto() {
+    super();
+  }
+
+  /**
+   * Constructor with only required parameters
+   */
+  public ErrorDto(CodeEnum code, String message) {
+    this.code = code;
+    this.message = message;
+  }
+
+  public ErrorDto code(CodeEnum code) {
+    this.code = code;
+    return this;
+  }
+
+  /**
+   * Get code
+   * @return code
+   */
+  @NotNull 
+  @Schema(name = "code", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("code")
+  public CodeEnum getCode() {
+    return code;
+  }
+
+  @JsonProperty("code")
+  public void setCode(CodeEnum code) {
+    this.code = code;
+  }
+
+  public ErrorDto message(String message) {
+    this.message = message;
+    return this;
+  }
+
+  /**
+   * Понятная причина ошибки без внутренних данных и трассировки стека
+   * @return message
+   */
+  @NotNull 
+  @Schema(name = "message", description = "Понятная причина ошибки без внутренних данных и трассировки стека", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("message")
+  public String getMessage() {
+    return message;
+  }
+
+  @JsonProperty("message")
+  public void setMessage(String message) {
+    this.message = message;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ErrorDto errorDto = (ErrorDto) o;
+    return Objects.equals(this.code, errorDto.code) &&
+        Objects.equals(this.message, errorDto.message);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(code, message);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("class ErrorDto {\n");
+    sb.append("    code: ").append(toIndentedString(code)).append("\n");
+    sb.append("    message: ").append(toIndentedString(message)).append("\n");
+    sb.append("}");
+    return sb.toString();
+  }
+
+  /**
+   * Convert the given object to string with each line indented by 4 spaces
+   * (except the first line).
+   */
+  private String toIndentedString(@Nullable Object o) {
+    return o == null ? "null" : o.toString().replace("\n", "\n    ");
+  }
+}
+
